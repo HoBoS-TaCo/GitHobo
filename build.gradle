@@ -1,0 +1,18 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group = 'com.github.hobos_taco.githobo'
+version = '0.1'
+archivesBaseName = 'GitHobo'
+targetCompatibility = '1.6'
+sourceCompatibility = '1.6'
+
+repositories {
+      mavenCentral()
+}
+
+dependencies {
+    compile 'org.apache.httpcomponents:httpcore:4.3' //Have to contact GitHub somehow
+    compile 'org.apache.httpcomponents:httpclient:4.3' //Have to contact GitHub somehow
+    compile 'com.google.code.gson:gson:2.2.4' //GitHub likes to speak in JSON
+}
