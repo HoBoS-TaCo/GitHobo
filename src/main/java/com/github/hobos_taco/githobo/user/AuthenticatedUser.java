@@ -1,19 +1,22 @@
 package com.github.hobos_taco.githobo.user;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.entity.FileEntity;
+
+import com.github.hobos_taco.githobo.Constants;
+import com.github.hobos_taco.githobo.repository.Asset;
+import com.github.hobos_taco.githobo.repository.Release;
 import com.github.hobos_taco.githobo.repository.Repository;
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 
 public class AuthenticatedUser extends User {
-
-  private String username;
-  private String password;
-
   public AuthenticatedUser(String username, String password) {
-    userData = GitHoboWebHelper.get(username, password, "/user");
-    this.password = password;
-    this.username = username;
+    GitHoboWebHelper.setUserAuthentication("Basic " + new String(Base64.encodeBase64((username + ':' + password).getBytes())));
+    userData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(Constants.URL_USER));
   }
 
   public int getTotalPrivateReposCount() { return (Integer)userData.get("total_private_repos"); }
@@ -26,50 +29,58 @@ public class AuthenticatedUser extends User {
 
   public int getCollaboratorsCount() { return (Integer)userData.get("collaborators"); }
 
-  public User setName(String name) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("name", name);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
-  }
+  public User setName(String name) { return new User(GitHoboWebHelper.patch(Constants.URL_USER, "name", name)); }
 
-  public User setEmail(String email) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("email", email);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
-  }
+  public User setEmail(String email) { return new User(GitHoboWebHelper.patch(Constants.URL_USER, "email", email)); }
 
-  public User setBlog(String blog) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("blog", blog);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
-  }
+  public User setBlog(String blog) { return new User(GitHoboWebHelper.patch(Constants.URL_USER, "blog", blog));}
 
   public User setCompany(String company) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("company", company);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
+    return new User(GitHoboWebHelper.patch(Constants.URL_USER, "company", company));
   }
 
   public User setLocation(String location) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("location", location);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
+    return new User(GitHoboWebHelper.patch(Constants.URL_USER, "location", location));
   }
 
   public User setHireable(boolean hireable) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("hireable", hireable);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
+    return new User(GitHoboWebHelper.patch(Constants.URL_USER, "hireable", hireable));
   }
 
   public User setBiography(String biography) {
-    HashMap map = new HashMap<String, Object>();
-    map.put("bio", biography);
-    return new User(GitHoboWebHelper.patch(getLogin(), password, "/user", map));
+    return new User(GitHoboWebHelper.patch(Constants.URL_USER, "bio", biography));
   }
 
-  public Plan getPlan() {
-    return new Plan().get((HashMap)userData.get("plan"));
+  public Plan getPlan() { return new Plan().get((HashMap)userData.get("plan")); }
+
+  public Repository createRepository(String name, String description, String homepage, boolean isPrivate, boolean hasIssues, boolean hasWiki, boolean hasDownloads, int teamId, boolean autoInitialCommit, String gitIgnoreTemplate) {
+    HashMap newRepoMap = new HashMap<String, Object>();
+    newRepoMap.put("name", name);
+    newRepoMap.put("description", description);
+    newRepoMap.put("homepage", homepage);
+    newRepoMap.put("private", isPrivate);
+    newRepoMap.put("has_issues", hasIssues);
+    newRepoMap.put("has_wiki", hasWiki);
+    newRepoMap.put("has_downloads", hasDownloads);
+    newRepoMap.put("team_id", teamId);
+    newRepoMap.put("auto_init", autoInitialCommit);
+    newRepoMap.put("gitignore_template", gitIgnoreTemplate);
+    return new Repository(GitHoboWebHelper.post(Constants.URL_USERREPOS, GitHoboWebHelper.toStringEntity(newRepoMap)));
+  }
+
+  public Release createRelease(Repository repostitory, String tagName, String targetCommitish, String name, String body, boolean draft, boolean prerelease) {
+    HashMap newReleaseMap = new HashMap<String, Object>();
+    newReleaseMap.put("tag_name", tagName);
+    newReleaseMap.put("target_commitish", targetCommitish);
+    newReleaseMap.put("name", name);
+    newReleaseMap.put("body", body);
+    newReleaseMap.put("draft", draft);
+    newReleaseMap.put("prerelease", prerelease);
+    return new Release(GitHoboWebHelper.post(repostitory.getReleasesUrl().replaceAll(Pattern.quote("{/id}"), ""), GitHoboWebHelper.toStringEntity(newReleaseMap)));
+  }
+
+  public Asset createReleaseAsset(Release release, File upload, String uploadName) {
+    return new Asset(GitHoboWebHelper.upload(release.getUploadUrl().replaceAll(Pattern.quote("{?name}"), ""), new FileEntity(upload), uploadName));
   }
 
   public class Plan {
@@ -87,20 +98,5 @@ public class AuthenticatedUser extends User {
     public int getCollaboratorsCount() { return (Integer)planData.get("collaborators"); }
 
     public int getPrivateReposCount() { return (Integer)planData.get("private_repos"); }
-
-    public Repository createRepository(String name, String description, String homepage, boolean isPrivate, boolean hasIssues, boolean hasWiki, boolean hasDownloads, int teamId, boolean autoInitialCommit, String gitIgnoreTemplate) {
-      HashMap newRepoMap = new HashMap<String, Object>();
-      newRepoMap.put("name", name);
-      newRepoMap.put("description", description);
-      newRepoMap.put("homepage", homepage);
-      newRepoMap.put("private", isPrivate);
-      newRepoMap.put("has_issues", hasIssues);
-      newRepoMap.put("has_wiki", hasWiki);
-      newRepoMap.put("has_downloads", hasDownloads);
-      newRepoMap.put("team_id", teamId);
-      newRepoMap.put("auto_init", autoInitialCommit);
-      newRepoMap.put("gitignore_template", gitIgnoreTemplate);
-      return new Repository(GitHoboWebHelper.post(username, password, "/user/repos", newRepoMap));
-    }
   }
 }

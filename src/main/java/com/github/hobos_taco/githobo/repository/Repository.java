@@ -3,25 +3,33 @@ package com.github.hobos_taco.githobo.repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import org.apache.http.HttpEntity;
 
 import com.github.hobos_taco.githobo.user.User;
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
+import com.google.gson.internal.LinkedTreeMap;
 
 public class Repository {
 
   private HashMap<String, Object> repoData = new HashMap<String, Object>();
 
   public Repository(String ownerName, String repositoryName) {
-    repoData = GitHoboWebHelper.get("/repos/" + ownerName + "/" + repositoryName);
+    repoData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(createUrl(ownerName, repositoryName)));
   }
 
   public Repository(HashMap data) {
     repoData = data;
   }
 
+  public Repository(HttpEntity entity) {
+    repoData = GitHoboWebHelper.toHashMap(entity);
+  }
+
   public int getId() { return (Integer)repoData.get("id"); }
 
-  public User getOwner() { return new User((HashMap)repoData.get("owner")); }
+  public User getOwner() { return new User((LinkedTreeMap)repoData.get("owner")); }
 
   public String getName() { return (String)repoData.get("name"); }
 
@@ -49,6 +57,12 @@ public class Repository {
 
   public String getForksUrl() { return (String)repoData.get("forks_url"); }
 
+  public String getLabelsUrl() { return (String)repoData.get("labels_url"); }
+
+  public String getReleasesUrl() { return (String)repoData.get("releases_url"); }
+
+  public String getNotificationsUrl() { return (String)repoData.get("notifications_url"); }
+
   public String getHomePage() { return (String)repoData.get("homepage"); }
 
   public String getLanguage() { return (String)repoData.get("language"); }
@@ -73,6 +87,8 @@ public class Repository {
 
   public String getUpdatedAt() { return (String)repoData.get("updated_at"); }
 
+  public Release getRelease(int id) { return new Release(this, id); }
+
   public int getSubscribersCount() { return (Integer)repoData.get("subscribers_count"); }
 
   public User getOrganization() { return new User((HashMap)repoData.get("organization")); }
@@ -94,11 +110,24 @@ public class Repository {
   public boolean hasDownloads() { return (Boolean)repoData.get("has_downloads"); }
 
   public List<Repository> getForks() {
-    HashMap[] forkedRepos = GitHoboWebHelper.getUrl(null, null, getForksUrl());
+    HashMap[] forkedRepos = GitHoboWebHelper.toHashMapArray(GitHoboWebHelper.get(getForksUrl()));
     List<Repository> repos = new ArrayList<Repository>();
     for (HashMap map : forkedRepos) {
       repos.add(new Repository(map));
     }
     return repos;
+  }
+
+  public List<Label> getLabels() {
+    HashMap[] forkedRepos = GitHoboWebHelper.toHashMapArray(GitHoboWebHelper.get(getLabelsUrl().replaceAll(Pattern.quote("{/name}"), "")));
+    List<Label> repos = new ArrayList<Label>();
+    for (HashMap map : forkedRepos) {
+      repos.add(new Label(map));
+    }
+    return repos;
+  }
+
+  public static String createUrl(String owner, String repo) {
+    return new String("https://api.github.com/repos/").concat(owner).concat("/").concat(repo);
   }
 }
