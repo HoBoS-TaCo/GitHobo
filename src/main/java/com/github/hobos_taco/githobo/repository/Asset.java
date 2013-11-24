@@ -1,17 +1,19 @@
 package com.github.hobos_taco.githobo.repository;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
 
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 
+@SuppressWarnings("unused")
 public class Asset {
 
   private HashMap assetData = new HashMap();
 
-  public Asset(Release release, int assetId) {
-    assetData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(release.getAssetsUrl().concat("/").concat(String.valueOf(assetId))));
+  public Asset(Repository repository, int assetId) {
+    assetData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(repository.getReleasesUrl().replaceAll(Pattern.quote("{/id}"), "/assets/".concat(String.valueOf(assetId)))));
   }
 
   public Asset(HashMap data) {

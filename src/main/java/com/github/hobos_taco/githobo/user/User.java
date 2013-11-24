@@ -13,6 +13,7 @@ import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+@SuppressWarnings("unused")
 public class User {
   protected HashMap userData = new HashMap<String, Object>();
 
@@ -43,9 +44,7 @@ public class User {
    *
    * @return The
    */
-  public String asJson() {
-    return new Gson().toJson(userData);
-  }
+  public String asJson() { return new Gson().toJson(userData); }
 
   /**
    * @return The {@link User}'s login, aka username as a string.
@@ -95,9 +94,7 @@ public class User {
     return ((String)userData.get("following_url")).replaceAll(Pattern.quote("{/other_user}"), "");
   }
 
-  public String getFollowingUrl(String followedUser) {
-    return getFollowingUrl().concat("/").concat(followedUser);
-  }
+  public String getFollowingUrl(String followedUser) { return getFollowingUrl().concat("/").concat(followedUser); }
 
   public String getFollowingUrl(User followedUser) {
     return getFollowingUrl().concat("/").concat(followedUser.getLogin());
@@ -116,18 +113,7 @@ public class User {
     return ((String)userData.get("gists_url")).replaceAll(Pattern.quote("{/gist_id}"), "");
   }
 
-  public String getGistsUrl(int gistId) {
-    return getGistsUrl().concat("/").concat(String.valueOf(gistId));
-  }
-
-  /*public List<Gist> getGists() {
-    HashMap[] mappedUsers = GitHoboWebHelper.getUrl(null, null, getGistsUrl());
-    List<Gist> gists = new ArrayList<Gist>();
-    for (HashMap map : mappedUsers) {
-      gists.add(new Gist().get(map));
-    }
-    return gists;
-  }*/
+  public String getGistsUrl(int gistId) { return getGistsUrl().concat("/").concat(String.valueOf(gistId)); }
 
   public String getStarredUrl() {
     return ((String)userData.get("starred_url")).replaceAll(Pattern.quote("{/owner}{/repo}"), "");
@@ -146,14 +132,20 @@ public class User {
 
   public String getOrganizationsUrl() { return (String)userData.get("organizations_url"); }
 
+  public List<Organization> getOrganizations() {
+    HashMap[] mappedOrgs = GitHoboWebHelper.toHashMapArray(GitHoboWebHelper.get(getStarredUrl()));
+    List<Organization> orgs = new ArrayList<Organization>();
+    for (HashMap map : mappedOrgs) {
+      orgs.add(new Organization(map));
+    }
+    return orgs;
+  }
+
   public String getEventsUrl() {
     return ((String)userData.get("events_url")).replaceAll(Pattern.quote("{/privacy}"), "");
   }
 
-  //TODO Events objects
-  public String getEventsUrl(String privacy) {
-    return getEventsUrl().concat("/").concat(privacy);
-  }
+  public String getEventsUrl(String privacy) { return getEventsUrl().concat("/").concat(privacy); }
 
   public String getRecievedEventsUrl() { return (String)userData.get("received_events_url"); }
 

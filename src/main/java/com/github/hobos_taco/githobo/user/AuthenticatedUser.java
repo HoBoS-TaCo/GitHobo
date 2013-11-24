@@ -13,6 +13,7 @@ import com.github.hobos_taco.githobo.repository.Release;
 import com.github.hobos_taco.githobo.repository.Repository;
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 
+@SuppressWarnings("unused")
 public class AuthenticatedUser extends User {
   public AuthenticatedUser(String username, String password) {
     GitHoboWebHelper.setUserAuthentication("Basic " + new String(Base64.encodeBase64((username + ':' + password).getBytes())));
@@ -54,7 +55,7 @@ public class AuthenticatedUser extends User {
   public Plan getPlan() { return new Plan().get((HashMap)userData.get("plan")); }
 
   public Repository createRepository(String name, String description, String homepage, boolean isPrivate, boolean hasIssues, boolean hasWiki, boolean hasDownloads, int teamId, boolean autoInitialCommit, String gitIgnoreTemplate) {
-    HashMap newRepoMap = new HashMap<String, Object>();
+    HashMap<String, Object> newRepoMap = new HashMap<String, Object>();
     newRepoMap.put("name", name);
     newRepoMap.put("description", description);
     newRepoMap.put("homepage", homepage);
@@ -69,13 +70,19 @@ public class AuthenticatedUser extends User {
   }
 
   public Release createRelease(Repository repostitory, String tagName, String targetCommitish, String name, String body, boolean draft, boolean prerelease) {
-    HashMap newReleaseMap = new HashMap<String, Object>();
+    HashMap<String, Object> newReleaseMap = new HashMap<String, Object>();
     newReleaseMap.put("tag_name", tagName);
+    System.out.println(tagName);
     newReleaseMap.put("target_commitish", targetCommitish);
+    System.out.println(targetCommitish);
     newReleaseMap.put("name", name);
+    System.out.println(name);
     newReleaseMap.put("body", body);
+    System.out.println(body);
     newReleaseMap.put("draft", draft);
+    System.out.println(draft);
     newReleaseMap.put("prerelease", prerelease);
+    System.out.println(prerelease);
     return new Release(GitHoboWebHelper.post(repostitory.getReleasesUrl().replaceAll(Pattern.quote("{/id}"), ""), GitHoboWebHelper.toStringEntity(newReleaseMap)));
   }
 
@@ -86,6 +93,7 @@ public class AuthenticatedUser extends User {
   public class Plan {
     protected HashMap<String, Object> planData = new HashMap<String, Object>();
 
+    @SuppressWarnings("unchecked")
     protected Plan get(HashMap plan) {
       planData = plan;
       return this;

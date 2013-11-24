@@ -51,7 +51,6 @@ public class GitHoboWebHelper {
       httpPost.setHeader("Accept", "application/vnd.github.v3+json");
     } else if (entity instanceof FileEntity) {
       httpPost.setHeader("Accept", "application/vnd.github.v3+zip");
-      ;
     }
     httpPost.setHeader("User-Agent", "GitHobo");
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -63,14 +62,12 @@ public class GitHoboWebHelper {
     catch (IOException e) {
       e.printStackTrace();
     }
-    try {
+    if (response != null) {
       return response.getEntity();
-    }
-    catch (NullPointerException e) {
+    } else {
       System.out.println("No post response from " + url);
-      e.printStackTrace();
+      throw new NullPointerException();
     }
-    return null;
   }
 
   public static HttpEntity get(String url) {
@@ -98,14 +95,12 @@ public class GitHoboWebHelper {
     catch (IOException e) {
       e.printStackTrace();
     }
-    try {
+    if (response != null) {
       return response.getEntity();
-    }
-    catch (NullPointerException e) {
+    } else {
       System.out.println("No get response from " + url);
-      e.printStackTrace();
+      throw new NullPointerException();
     }
-    return null;
   }
 
   public static HttpEntity patch(String url, String key, Object value) {
@@ -148,14 +143,12 @@ public class GitHoboWebHelper {
     catch (IOException e) {
       e.printStackTrace();
     }
-    try {
+    if (response != null) {
       return response.getEntity();
-    }
-    catch (NullPointerException e) {
+    } else {
       System.out.println("No patch response from " + url);
-      e.printStackTrace();
+      throw new NullPointerException();
     }
-    return null;
   }
 
   public static HttpEntity upload(String url, HttpEntity entity, String uploadName) {
@@ -185,16 +178,16 @@ public class GitHoboWebHelper {
     catch (IOException e) {
       e.printStackTrace();
     }
-    try {
+    if (response != null) {
       return response.getEntity();
+    } else {
+      System.out.println("No upload response from " + url);
+      throw new NullPointerException();
     }
-    catch (NullPointerException e) {
-      e.printStackTrace();
-    }
-    return null;
   }
 
-  public static HashMap toHashMap(HttpEntity entity) {
+  @SuppressWarnings("unchecked")
+  public static HashMap<String, Object> toHashMap(HttpEntity entity) {
     String json = null;
     try {
       json = EntityUtils.toString(entity);
@@ -205,7 +198,8 @@ public class GitHoboWebHelper {
     return new Gson().fromJson(json, HashMap.class);
   }
 
-  public static HashMap[] toHashMapArray(HttpEntity entity) {
+  @SuppressWarnings("unchecked")
+  public static HashMap<String, Object>[] toHashMapArray(HttpEntity entity) {
     String json = null;
     try {
       json = EntityUtils.toString(entity);

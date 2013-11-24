@@ -9,9 +9,10 @@ import org.apache.http.HttpEntity;
 
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 
+@SuppressWarnings("unused")
 public class Release {
 
-  private HashMap<String, Object> releaseData = new HashMap<String, Object>();
+  private HashMap releaseData = new HashMap<String, Object>();
 
   public Release(Repository repository, int releaseId) {
     releaseData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(repository.getReleasesUrl().replaceAll(Pattern.quote("{/id}"), "/".concat(String.valueOf(releaseId)))));

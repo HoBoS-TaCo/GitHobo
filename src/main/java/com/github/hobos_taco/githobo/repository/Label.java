@@ -4,9 +4,10 @@ import java.util.HashMap;
 
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
 
+@SuppressWarnings("unused")
 public class Label {
 
-  private HashMap<String, Object> issueData = new HashMap<String, Object>();
+  private HashMap issueData = new HashMap<String, Object>();
 
   public Label(Repository repository, String name) {
     issueData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(repository.getApiUrl().concat("/labels/").concat(name)));

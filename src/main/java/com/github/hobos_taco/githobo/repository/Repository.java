@@ -9,11 +9,13 @@ import org.apache.http.HttpEntity;
 
 import com.github.hobos_taco.githobo.user.User;
 import com.github.hobos_taco.githobo.util.GitHoboWebHelper;
+import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+@SuppressWarnings("unused")
 public class Repository {
 
-  private HashMap<String, Object> repoData = new HashMap<String, Object>();
+  private HashMap repoData = new HashMap<String, Object>();
 
   public Repository(String ownerName, String repositoryName) {
     repoData = GitHoboWebHelper.toHashMap(GitHoboWebHelper.get(createUrl(ownerName, repositoryName)));
@@ -60,6 +62,8 @@ public class Repository {
   public String getLabelsUrl() { return (String)repoData.get("labels_url"); }
 
   public String getReleasesUrl() { return (String)repoData.get("releases_url"); }
+
+  public String getCommitsUrl() { return (String)repoData.get("commits_url"); }
 
   public String getNotificationsUrl() { return (String)repoData.get("notifications_url"); }
 
@@ -128,6 +132,10 @@ public class Repository {
   }
 
   public static String createUrl(String owner, String repo) {
-    return new String("https://api.github.com/repos/").concat(owner).concat("/").concat(repo);
+    return "https://api.github.com/repos/".concat(owner).concat("/").concat(repo);
+  }
+
+  public String asJson() {
+    return new Gson().toJson(repoData);
   }
 }
