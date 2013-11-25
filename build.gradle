@@ -13,8 +13,42 @@ repositories {
       mavenCentral()
 }
 
+jar
+{
+    manifest {
+        attributes 'version':project.version, 'javaCompliance': project.targetCompatibility
+        attributes 'group':project.group
+    }
+}
+
 dependencies {
     compile 'org.apache.httpcomponents:httpcore:4.3' //Have to contact GitHub somehow
     compile 'org.apache.httpcomponents:httpclient:4.3' //Have to contact GitHub somehow #2
     compile 'com.google.code.gson:gson:2.2.4' //GitHub likes to speak in JSON
 }
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+	archives javadocJar
+    archives sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
+
+task wrapper(type: Wrapper) { gradleVersion = '1.9' }

@@ -72,17 +72,11 @@ public class AuthenticatedUser extends User {
   public Release createRelease(Repository repostitory, String tagName, String targetCommitish, String name, String body, boolean draft, boolean prerelease) {
     HashMap<String, Object> newReleaseMap = new HashMap<String, Object>();
     newReleaseMap.put("tag_name", tagName);
-    System.out.println(tagName);
     newReleaseMap.put("target_commitish", targetCommitish);
-    System.out.println(targetCommitish);
     newReleaseMap.put("name", name);
-    System.out.println(name);
     newReleaseMap.put("body", body);
-    System.out.println(body);
     newReleaseMap.put("draft", draft);
-    System.out.println(draft);
     newReleaseMap.put("prerelease", prerelease);
-    System.out.println(prerelease);
     return new Release(GitHoboWebHelper.post(repostitory.getReleasesUrl().replaceAll(Pattern.quote("{/id}"), ""), GitHoboWebHelper.toStringEntity(newReleaseMap)));
   }
 
