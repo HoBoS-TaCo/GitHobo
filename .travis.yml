@@ -1,0 +1,9 @@
+language: java
+script: gradle uploadArchives
+branches:
+  only:
+    - master
+env:
+  global:
+    secure: "L4SnZcfoYOpra+zuwzHUqJaA/IBRsvO91wdotAWg3QkCaiRfKdy5YV96dkOlSxuyxIOny2AYspQUsUQHVZYCZxGkk0gOBlDYzHAkCZhEgyFAgs3aybWOzI67cvvK0tv+d7o45/aFhhUMDDr3t/zsWJNxMvQDP8wRzIWtuGrH3T4="
+    secure: "RgLwkS464wtTZ0W9HLC/4sWX/OR2pHCSofamAQFu6IhFfGiS4RJ6jI0mW48PDmscxwx9Iw4MAzw7xClWrbAZoduv1wyi7PKi26/bbBmCJb7Cru6s55iACfSnKDAJADFvUx3HxTXRTt080xNJkxnHopa+Uk6q6Qg58LLP0pe3VmQ="

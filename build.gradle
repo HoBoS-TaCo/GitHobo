@@ -1,54 +1,101 @@
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "eclipse"
+apply plugin: "maven"
 
-group = 'com.github.hobos_taco.githobo'
-version = '0.3'
-archivesBaseName = 'githobo'
-targetCompatibility = '1.6'
-sourceCompatibility = '1.6'
+group = "com.github.hobos_taco.githobo"
+version = "0.4"
+archivesBaseName = "githobo"
+targetCompatibility = "1.6"
+sourceCompatibility = "1.6"
 
 repositories {
-      mavenCentral()
+  mavenCentral()
 }
 
-jar
-{
-    manifest {
-        attributes 'version':project.version, 'javaCompliance': project.targetCompatibility
-        attributes 'group':project.group
-    }
+jar {
+  manifest {
+    attributes "version":project.version, "javaCompliance": project.targetCompatibility
+    attributes "group":project.group
+  }
+}
+
+configurations {
+  deployerJars
 }
 
 dependencies {
-    compile 'org.apache.httpcomponents:httpcore:4.3' //Have to contact GitHub somehow
-    compile 'org.apache.httpcomponents:httpclient:4.3' //Have to contact GitHub somehow #2
-    compile 'com.google.code.gson:gson:2.2.4' //GitHub likes to speak in JSON
+  compile "org.apache.httpcomponents:httpcore:4.3" //Have to contact GitHub somehow
+  compile "org.apache.httpcomponents:httpclient:4.3" //Have to contact GitHub somehow #2
+  compile "com.google.code.gson:gson:2.2.4" //GitHub likes to speak in JSON
+  deployerJars "org.apache.maven.wagon:wagon-ftp:2.2" //For uploading to maven
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
+  classifier = "javadoc"
+  from "build/docs/javadoc"
 }
  
 task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
+  from sourceSets.main.allSource
+  classifier = "sources"
 }
 
 artifacts {
-    archives jar
-	archives javadocJar
-    archives sourcesJar
+  archives jar
+  archives javadocJar
+  archives sourcesJar
 }
 
 uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri('../repo'))
+  repositories {
+    mavenDeployer {
+      configuration = configurations.deployerJars
+	  
+      repository(url: "ftp://dayzminecraft.x10.mx") {
+        authentication(userName: System.getenv("MAVENUSERNAME"), password: System.getenv("MAVENPASSWORD"))
+      }
+	  
+      pom {
+        groupId = project.group
+        version = project.version
+        artifactId = project.archivesBaseName
+		
+        project {
+          name project.archivesBaseName
+          packaging "jar"
+          description "An Object Orientated Java library for interacting with GitHub"
+          url "https://github.com/HoBoS-TaCo/GitHobo"
+		  
+          scm {
+            url "https://github.com/HoBoS-TaCo/GitHobo"
+            connection "scm:git:git://github.com/HoBoS-TaCo/GitHobo.git"
+            developerConnection "scm:git:git@github.com:HoBoS-TaCo/GitHobo.git"
+          }
+		  
+          issueManagement {
+            system "github"
+            url "https://github.com/HoBoS-TaCo/GitHobo/issues"
+          }
+		  
+          licenses {
+            license {
+              name "GNU LESSER GENERAL PUBLIC LICENSE"
+              url "https://www.gnu.org/licenses/lgpl.html"
+              distribution "repo"
+            }
+          }
+		  
+          developers {
+            developer {
+              id "HoBoS-TaCo"
+              roles { role "developer" }
+            }
+          }
         }
+      }
     }
+  }
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '1.9' }
+task wrapper(type: Wrapper) { gradleVersion = "1.9" }
